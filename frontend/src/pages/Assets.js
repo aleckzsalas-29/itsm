@@ -622,84 +622,84 @@ const Assets = () => {
               data-testid={`asset-card-${asset.id}`}
               className="bg-white rounded-xl shadow-sm border border-slate-200 p-6 hover:shadow-lg transition-all"
             >
-                    <div className="flex items-start justify-between mb-4">
-                      <div className="flex items-center space-x-3">
-                        <div className={`w-12 h-12 rounded-lg flex items-center justify-center ${
-                          asset.status === 'active' ? 'bg-green-100' :
-                          asset.status === 'in_repair' ? 'bg-yellow-100' :
-                          'bg-red-100'
-                        }`}>
-                          {getStatusIcon(asset.status)}
-                        </div>
-                        <div>
-                          <h3 className="font-semibold text-slate-800" style={{ fontFamily: 'Inter, sans-serif' }}>
-                            {asset.asset_type || asset.model || 'Activo'}
-                          </h3>
-                          <p className="text-xs text-slate-600">{asset.manufacturer} {asset.model}</p>
-                        </div>
-                      </div>
-                      {user?.role !== 'client' && (
-                        <div className="flex space-x-2">
-                          <button
-                            onClick={() => handleEdit(asset)}
-                            data-testid={`edit-asset-${asset.id}`}
-                            className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
-                          >
-                            <Pencil className="w-4 h-4" />
-                          </button>
-                          <button
-                            onClick={() => handleDelete(asset.id)}
-                            data-testid={`delete-asset-${asset.id}`}
-                            className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
-                          >
-                            <Trash2 className="w-4 h-4" />
-                          </button>
-                        </div>
-                      )}
-                    </div>
-                    <div className="space-y-2 text-sm">
-                      {asset.serial_number && (
-                        <div>
-                          <span className="text-slate-600">S/N:</span>
-                          <p className="font-medium text-slate-800">{asset.serial_number}</p>
-                        </div>
-                      )}
-                      {asset.host_name && (
-                        <div>
-                          <span className="text-slate-600">Host:</span>
-                          <p className="font-medium text-slate-800">{asset.host_name}</p>
-                        </div>
-                      )}
-                      {asset.location && (
-                        <div>
-                          <span className="text-slate-600">Ubicación:</span>
-                          <p className="font-medium text-slate-800">{asset.location}</p>
-                        </div>
-                      )}
-                      {asset.ip_address && (
-                        <div>
-                          <span className="text-slate-600">IP:</span>
-                          <p className="font-medium text-slate-800">{asset.ip_address}</p>
-                        </div>
-                      )}
-                      {asset.operating_system && (
-                        <div>
-                          <span className="text-slate-600">SO:</span>
-                          <p className="font-medium text-slate-800">{asset.operating_system}</p>
-                        </div>
-                      )}
-                      <div>
-                        <span className="text-slate-600">Estado:</span>
-                        <p className={`font-medium inline-block px-2 py-1 rounded-full text-xs ml-2 ${
-                          asset.status === 'active' ? 'bg-green-100 text-green-800' :
-                          asset.status === 'in_repair' ? 'bg-yellow-100 text-yellow-800' :
-                          'bg-red-100 text-red-800'
-                        }`}>
-                          {getStatusLabel(asset.status)}
-                        </p>
-                      </div>
-                    </div>
+              <div className="flex items-start justify-between mb-4">
+                <div className="flex items-center space-x-3">
+                  <div className={`w-12 h-12 rounded-lg flex items-center justify-center ${
+                    asset.status === 'active' ? 'bg-green-100' :
+                    asset.status === 'in_repair' ? 'bg-yellow-100' :
+                    'bg-red-100'
+                  }`}>
+                    {getStatusIcon(asset.status)}
                   </div>
+                  <div>
+                    <h3 className="font-semibold text-slate-800" style={{ fontFamily: 'Inter, sans-serif' }}>
+                      {asset.asset_type || asset.model || 'Activo'}
+                    </h3>
+                    <p className="text-xs text-slate-600">{asset.manufacturer} {asset.model}</p>
+                  </div>
+                </div>
+                {user?.role !== 'client' && (
+                  <div className="flex space-x-2">
+                    <button
+                      onClick={() => handleEdit(asset)}
+                      data-testid={`edit-asset-${asset.id}`}
+                      className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+                    >
+                      <Pencil className="w-4 h-4" />
+                    </button>
+                    <button
+                      onClick={() => handleDelete(asset.id)}
+                      data-testid={`delete-asset-${asset.id}`}
+                      className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </button>
+                  </div>
+                )}
+              </div>
+              <div className="space-y-2 text-sm">
+                {asset.serial_number && (
+                  <div>
+                    <span className="text-slate-600">S/N:</span>
+                    <p className="font-medium text-slate-800">{asset.serial_number}</p>
+                  </div>
+                )}
+                {asset.host_name && (
+                  <div>
+                    <span className="text-slate-600">Host:</span>
+                    <p className="font-medium text-slate-800">{asset.host_name}</p>
+                  </div>
+                )}
+                {asset.location && (
+                  <div>
+                    <span className="text-slate-600">Ubicación:</span>
+                    <p className="font-medium text-slate-800">{asset.location}</p>
+                  </div>
+                )}
+                {asset.ip_address && (
+                  <div>
+                    <span className="text-slate-600">IP:</span>
+                    <p className="font-medium text-slate-800">{asset.ip_address}</p>
+                  </div>
+                )}
+                {asset.operating_system && (
+                  <div>
+                    <span className="text-slate-600">SO:</span>
+                    <p className="font-medium text-slate-800">{asset.operating_system}</p>
+                  </div>
+                )}
+                <div>
+                  <span className="text-slate-600">Estado:</span>
+                  <p className={`font-medium inline-block px-2 py-1 rounded-full text-xs ml-2 ${
+                    asset.status === 'active' ? 'bg-green-100 text-green-800' :
+                    asset.status === 'in_repair' ? 'bg-yellow-100 text-yellow-800' :
+                    'bg-red-100 text-red-800'
+                  }`}>
+                    {getStatusLabel(asset.status)}
+                  </p>
+                </div>
+              </div>
+            </div>
           ))}
         </div>
       )}
