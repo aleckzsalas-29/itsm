@@ -66,118 +66,48 @@ const LoginPage = () => {
 
         {/* Auth Card */}
         <div className="bg-white/95 backdrop-blur-lg rounded-2xl shadow-2xl p-8">
-          <Tabs defaultValue="login" className="w-full">
-            <TabsList className="grid w-full grid-cols-2 mb-8">
-              <TabsTrigger value="login" data-testid="login-tab">Iniciar Sesión</TabsTrigger>
-              <TabsTrigger value="register" data-testid="register-tab">Registrarse</TabsTrigger>
-            </TabsList>
-
-            <TabsContent value="login">
-              <form onSubmit={handleLogin} className="space-y-6">
-                <div>
-                  <Label htmlFor="login-email">Email</Label>
-                  <Input
-                    id="login-email"
-                    data-testid="login-email-input"
-                    type="email"
-                    placeholder="tu@email.com"
-                    value={loginData.email}
-                    onChange={(e) => setLoginData({ ...loginData, email: e.target.value })}
-                    required
-                    className="mt-2"
-                  />
-                </div>
-                <div>
-                  <Label htmlFor="login-password">Contraseña</Label>
-                  <Input
-                    id="login-password"
-                    data-testid="login-password-input"
-                    type="password"
-                    placeholder="••••••••"
-                    value={loginData.password}
-                    onChange={(e) => setLoginData({ ...loginData, password: e.target.value })}
-                    required
-                    className="mt-2"
-                  />
-                </div>
-                <Button
-                  type="submit"
-                  data-testid="login-submit-button"
-                  disabled={loading}
-                  className="w-full bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white py-3 rounded-xl font-medium shadow-lg shadow-blue-600/30 transition-all"
-                >
-                  {loading ? 'Iniciando...' : 'Iniciar Sesión'}
-                </Button>
-              </form>
-            </TabsContent>
-
-            <TabsContent value="register">
-              <form onSubmit={handleRegister} className="space-y-6">
-                <div>
-                  <Label htmlFor="register-name">Nombre Completo</Label>
-                  <Input
-                    id="register-name"
-                    data-testid="register-name-input"
-                    type="text"
-                    placeholder="Juan Pérez"
-                    value={registerData.name}
-                    onChange={(e) => setRegisterData({ ...registerData, name: e.target.value })}
-                    required
-                    className="mt-2"
-                  />
-                </div>
-                <div>
-                  <Label htmlFor="register-email">Email</Label>
-                  <Input
-                    id="register-email"
-                    data-testid="register-email-input"
-                    type="email"
-                    placeholder="tu@email.com"
-                    value={registerData.email}
-                    onChange={(e) => setRegisterData({ ...registerData, email: e.target.value })}
-                    required
-                    className="mt-2"
-                  />
-                </div>
-                <div>
-                  <Label htmlFor="register-password">Contraseña</Label>
-                  <Input
-                    id="register-password"
-                    data-testid="register-password-input"
-                    type="password"
-                    placeholder="••••••••"
-                    value={registerData.password}
-                    onChange={(e) => setRegisterData({ ...registerData, password: e.target.value })}
-                    required
-                    className="mt-2"
-                  />
-                </div>
-                <div>
-                  <Label htmlFor="register-role">Rol</Label>
-                  <select
-                    id="register-role"
-                    data-testid="register-role-select"
-                    value={registerData.role}
-                    onChange={(e) => setRegisterData({ ...registerData, role: e.target.value })}
-                    className="w-full mt-2 px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    required
-                  >
-                    <option value="client">Cliente</option>
-                    <option value="technician">Técnico</option>
-                    <option value="admin">Administrador</option>
-                  </select>
-                </div>
-                <Button
-                  type="submit"
-                  data-testid="register-submit-button"
-                  disabled={loading}
-                  className="w-full bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white py-3 rounded-xl font-medium shadow-lg shadow-blue-600/30 transition-all"
-                >
-                  {loading ? 'Registrando...' : 'Crear Cuenta'}
-                </Button>
-              </form>
-            </TabsContent>
-          </Tabs>
+          <h2 className="text-2xl font-bold text-slate-800 mb-8 text-center" style={{ fontFamily: 'Space Grotesk, sans-serif' }}>
+            Iniciar Sesión
+          </h2>
+          <form onSubmit={handleLogin} className="space-y-6">
+            <div>
+              <Label htmlFor="login-email">Email</Label>
+              <Input
+                id="login-email"
+                data-testid="login-email-input"
+                type="email"
+                placeholder="tu@email.com"
+                value={loginData.email}
+                onChange={(e) => setLoginData({ ...loginData, email: e.target.value })}
+                required
+                className="mt-2"
+              />
+            </div>
+            <div>
+              <Label htmlFor="login-password">Contraseña</Label>
+              <Input
+                id="login-password"
+                data-testid="login-password-input"
+                type="password"
+                placeholder="••••••••"
+                value={loginData.password}
+                onChange={(e) => setLoginData({ ...loginData, password: e.target.value })}
+                required
+                className="mt-2"
+              />
+            </div>
+            <Button
+              type="submit"
+              data-testid="login-submit-button"
+              disabled={loading}
+              className="w-full bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white py-3 rounded-xl font-medium shadow-lg shadow-blue-600/30 transition-all"
+            >
+              {loading ? 'Iniciando...' : 'Iniciar Sesión'}
+            </Button>
+          </form>
+          <div className="mt-6 text-center text-sm text-slate-600">
+            <p>¿No tienes cuenta? Contacta con el administrador del sistema.</p>
+          </div>
         </div>
 
         <div className="text-center mt-6 text-blue-200 text-sm" style={{ fontFamily: 'Inter, sans-serif' }}>
