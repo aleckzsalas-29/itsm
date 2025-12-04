@@ -660,8 +660,8 @@ async def get_ticket_notes(ticket_id: str, current_user: User = Depends(get_curr
 
 @api_router.post("/services", response_model=Service)
 async def create_service(service_data: ServiceCreate, current_user: User = Depends(get_current_user)):
-    if current_user.role != 'admin':
-        raise HTTPException(status_code=403, detail="Only admins can create services")
+    if current_user.role not in ['admin', 'technician']:
+        raise HTTPException(status_code=403, detail="Only admins and technicians can create services")
     
     service = Service(**service_data.model_dump())
     doc = service.model_dump()
@@ -671,14 +671,50 @@ async def create_service(service_data: ServiceCreate, current_user: User = Depen
     return service
 
 @api_router.get("/services", response_model=List[Service])
-async def get_services(current_user: User = Depends(get_current_user)):
-    services = await db.services.find({}, {"_id": 0}).to_list(1000)
+async def get_services(company_id: Optional[str] = None, current_user: User = Depends(get_current_user)):
+    query = {}
+    if current_user.role == 'client':
+        query['company_id'] = current_user.company_id
+    elif company_id:
+        query['company_id'] = company_id
+    
+    services = await db.services.find(query, {"_id": 0}).to_list(1000)
     
     for service in services:
         if isinstance(service['created_at'], str):
             service['created_at'] = datetime.fromisoformat(service['created_at'])
     
     return services
+
+@api_router.get("/services/{service_id}", response_model=Service)
+async def get_service(service_id: str, current_user: User = Depends(get_current_user)):
+    service = await db.services.find_one({"id": service_id}, {"_id": 0})
+    if not service:
+        raise HTTPException(status_code=404, detail="Service not found")
+    
+    if isinstance(service['created_at'], str):
+        service['created_at'] = datetime.fromisoformat(service['created_at'])
+    
+    return Service(**service)
+
+@api_router.put("/services/{service_id}", response_model=Service)
+async def update_service(service_id: str, service_data: ServiceCreate, current_user: User = Depends(get_current_user)):
+    if current_user.role not in ['admin', 'technician']:
+        raise HTTPException(status_code=403, detail="Only admins and technicians can update services")
+    
+    result = await db.services.update_one(
+        {"id": service_id},
+        {"$set": service_data.model_dump()}
+    )
+    
+    if result.matched_count == 0:
+        raise HTTPException(status_code=404, detail="Service not found")
+    
+    updated = await db.services.find_one({"id": service_id}, {"_id": 0})
+    if isinstance(updated['created_at'], str):
+        updated['created_at'] = datetime.fromisoformat(updated['created_at'])
+    
+    return Service(**updated)
 
 @api_router.delete("/services/{service_id}")
 async def delete_service(service_id: str, current_user: User = Depends(get_current_user)):
