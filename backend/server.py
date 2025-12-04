@@ -239,13 +239,42 @@ class TicketNoteCreate(BaseModel):
 class Service(BaseModel):
     model_config = ConfigDict(extra="ignore")
     id: str = Field(default_factory=lambda: str(uuid.uuid4()))
-    name: str
-    description: str
+    
+    # Relaciones
+    company_id: str  # Empresa_Cliente
+    
+    # Información del Servicio
+    service_type: Optional[str] = None  # Tipo_de_Servicio (Web Hosting, VPS, Email, Licencias, etc.)
+    service_name: str  # Nombre_Servicio_Específico
+    description: Optional[str] = None  # Descripción_Detallada
+    
+    # Fechas y Facturación
+    start_date: Optional[str] = None  # Fecha_Inicio_Contrato
+    expiration_date: Optional[str] = None  # Fecha_Vencimiento_Contrato
+    billing_period: Optional[str] = None  # Periodo_Facturacion (Mensual, Trimestral, Anual)
+    cost: Optional[str] = None  # Costo_Mensual_o_Total
+    
+    # Proveedor y Acceso
+    external_provider: Optional[str] = None  # Proveedor_Externo
+    associated_domain: Optional[str] = None  # Dominio_Asociado
+    panel_access_data: Optional[str] = None  # Datos_Acceso_Panel
+    licenses_quantity: Optional[int] = None  # Licencias_Cantidad
+    
     created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
 
 class ServiceCreate(BaseModel):
-    name: str
-    description: str
+    company_id: str
+    service_type: Optional[str] = None
+    service_name: str
+    description: Optional[str] = None
+    start_date: Optional[str] = None
+    expiration_date: Optional[str] = None
+    billing_period: Optional[str] = None
+    cost: Optional[str] = None
+    external_provider: Optional[str] = None
+    associated_domain: Optional[str] = None
+    panel_access_data: Optional[str] = None
+    licenses_quantity: Optional[int] = None
 
 class Contract(BaseModel):
     model_config = ConfigDict(extra="ignore")
