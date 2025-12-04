@@ -410,8 +410,10 @@ async def get_companies(current_user: User = Depends(get_current_user)):
         companies = await db.companies.find({}, {"_id": 0}).to_list(1000)
     
     for company in companies:
-        if isinstance(company['created_at'], str):
+        if 'created_at' in company and isinstance(company['created_at'], str):
             company['created_at'] = datetime.fromisoformat(company['created_at'])
+        elif 'created_at' not in company:
+            company['created_at'] = datetime.now(timezone.utc)
     
     return companies
 
