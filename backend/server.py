@@ -484,8 +484,10 @@ async def get_assets(company_id: Optional[str] = None, current_user: User = Depe
     assets = await db.assets.find(query, {"_id": 0}).to_list(1000)
     
     for asset in assets:
-        if isinstance(asset['created_at'], str):
+        if 'created_at' in asset and isinstance(asset['created_at'], str):
             asset['created_at'] = datetime.fromisoformat(asset['created_at'])
+        elif 'created_at' not in asset:
+            asset['created_at'] = datetime.now(timezone.utc)
     
     return assets
 
