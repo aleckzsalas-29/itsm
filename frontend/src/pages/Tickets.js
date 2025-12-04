@@ -300,15 +300,94 @@ const Tickets = () => {
           </p>
         </div>
         <div className="flex space-x-3">
-          <Button 
-            onClick={() => handleDownloadPDF()}
-            data-testid="download-pdf-button" 
-            variant="outline" 
-            className="border-blue-600 text-blue-600 hover:bg-blue-50"
-          >
-            <Download className="w-4 h-4 mr-2" />
-            Descargar PDF
-          </Button>
+          <Dialog open={pdfDialogOpen} onOpenChange={setPdfDialogOpen}>
+            <DialogTrigger asChild>
+              <Button 
+                data-testid="download-pdf-button" 
+                variant="outline" 
+                className="border-blue-600 text-blue-600 hover:bg-blue-50"
+              >
+                <Download className="w-4 h-4 mr-2" />
+                Descargar PDF
+              </Button>
+            </DialogTrigger>
+            <DialogContent className="max-w-2xl">
+              <DialogHeader>
+                <DialogTitle>Filtros para Reporte PDF</DialogTitle>
+              </DialogHeader>
+              <div className="space-y-4 py-4">
+                {user?.role !== 'client' && (
+                  <div>
+                    <Label htmlFor="pdf_company_id">Empresa (opcional)</Label>
+                    <select
+                      id="pdf_company_id"
+                      value={pdfFilters.company_id}
+                      onChange={(e) => setPdfFilters({ ...pdfFilters, company_id: e.target.value })}
+                      className="w-full mt-1 px-3 py-2 border border-slate-300 rounded-lg"
+                    >
+                      <option value="">Todas las empresas</option>
+                      {companies.map((company) => (
+                        <option key={company.id} value={company.id}>{company.name}</option>
+                      ))}
+                    </select>
+                  </div>
+                )}
+                
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <Label htmlFor="pdf_start_date">Fecha Inicio</Label>
+                    <Input
+                      id="pdf_start_date"
+                      type="date"
+                      value={pdfFilters.start_date}
+                      onChange={(e) => setPdfFilters({ ...pdfFilters, start_date: e.target.value })}
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="pdf_end_date">Fecha Fin</Label>
+                    <Input
+                      id="pdf_end_date"
+                      type="date"
+                      value={pdfFilters.end_date}
+                      onChange={(e) => setPdfFilters({ ...pdfFilters, end_date: e.target.value })}
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <Label htmlFor="pdf_ticket_type">Tipo de Ticket (opcional)</Label>
+                  <select
+                    id="pdf_ticket_type"
+                    value={pdfFilters.ticket_type}
+                    onChange={(e) => setPdfFilters({ ...pdfFilters, ticket_type: e.target.value })}
+                    className="w-full mt-1 px-3 py-2 border border-slate-300 rounded-lg"
+                  >
+                    <option value="">Todos los tipos</option>
+                    <option value="incidente">Incidente</option>
+                    <option value="solicitud">Solicitud</option>
+                    <option value="mantenimiento">Mantenimiento</option>
+                  </select>
+                </div>
+              </div>
+              <div className="flex justify-end space-x-2">
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => setPdfDialogOpen(false)}
+                >
+                  Cancelar
+                </Button>
+                <Button
+                  type="button"
+                  onClick={handleDownloadPDF}
+                  className="bg-blue-600 hover:bg-blue-700 text-white"
+                >
+                  <Download className="w-4 h-4 mr-2" />
+                  Generar PDF
+                </Button>
+              </div>
+            </DialogContent>
+          </Dialog>
           
           <Dialog open={dialogOpen} onOpenChange={(open) => {
             setDialogOpen(open);
