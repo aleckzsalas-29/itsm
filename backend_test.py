@@ -341,8 +341,21 @@ class ITSMTester:
                 return False
         
         try:
-            # Update asset data
+            # First get the current asset to get the company_id
+            get_response = requests.get(
+                f"{API_BASE}/assets/{self.created_asset_id}",
+                headers=self.get_auth_headers()
+            )
+            
+            if get_response.status_code != 200:
+                self.log_result("Asset Update", False, "Could not get current asset data for update")
+                return False
+            
+            current_asset = get_response.json()
+            
+            # Update asset data (include company_id as it's required)
             update_data = {
+                "company_id": current_asset["company_id"],  # Required field
                 "asset_type": "Laptop",
                 "manufacturer": "Dell",
                 "model": "Latitude 7420 Updated",
