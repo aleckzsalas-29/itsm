@@ -632,11 +632,11 @@ const Assets = () => {
               {/* Assets Grid */}
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {assetsByCompany[companyId].map((asset) => (
-            <div
-              key={asset.id}
-              data-testid={`asset-card-${asset.id}`}
-              className="bg-white rounded-xl shadow-sm border border-slate-200 p-6 hover:shadow-lg transition-all"
-            >
+                  <div
+                    key={asset.id}
+                    data-testid={`asset-card-${asset.id}`}
+                    className="bg-white rounded-xl shadow-sm border border-slate-200 p-6 hover:shadow-lg transition-all"
+                  >
               <div className="flex items-start justify-between mb-4">
                 <div className="flex items-center space-x-3">
                   <div className={`w-12 h-12 rounded-lg flex items-center justify-center ${
