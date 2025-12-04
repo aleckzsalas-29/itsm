@@ -102,7 +102,7 @@
 # Testing Data - Main Agent and testing sub agent both should log testing data below this section
 #====================================================================================================
 
-user_problem_statement: "Realizar testing completo del módulo de Activos en sistema ITSM con backend FastAPI"
+user_problem_statement: "Realizar testing completo de las nuevas funcionalidades implementadas en el sistema ITSM Pro: 1) Reportes PDF de Tickets con filtros, 2) Logo de la empresa (verificación), 3) Agrupación de Activos por empresa"
 
 backend:
   - task: "Authentication API"
@@ -117,82 +117,71 @@ backend:
           agent: "testing"
           comment: "✅ Authentication successful with admin credentials (admin@itsm.com). JWT token generated and validated correctly."
 
-  - task: "Companies Listing API"
-    implemented: true
-    working: true
-    file: "server.py"
-    stuck_count: 0
-    priority: "high"
-    needs_retesting: false
-    status_history:
-        - working: true
-          agent: "testing"
-          comment: "✅ GET /api/companies returns 2 companies with all required fields (id, name, contact_person, email). Companies: Tech Solutions SA and Innovación Digital Ltda."
-
-  - task: "Assets Listing API"
-    implemented: true
-    working: true
-    file: "server.py"
-    stuck_count: 0
-    priority: "high"
-    needs_retesting: false
-    status_history:
-        - working: true
-          agent: "testing"
-          comment: "✅ GET /api/assets returns 7 assets (6 original + 1 created during testing) with all required fields (id, company_id, asset_type, manufacturer, model, status, created_at). Assets include servers, laptops, routers, and switches."
-
-  - task: "Asset Creation API"
-    implemented: true
-    working: true
-    file: "server.py"
-    stuck_count: 0
-    priority: "high"
-    needs_retesting: false
-    status_history:
-        - working: true
-          agent: "testing"
-          comment: "✅ POST /api/assets successfully creates new assets. Test asset created with ID d86444f2-04cd-45c2-b52a-6c6fb7a78330. All fields properly saved and returned."
-
-  - task: "Asset Update API"
-    implemented: true
-    working: true
-    file: "server.py"
-    stuck_count: 0
-    priority: "high"
-    needs_retesting: false
-    status_history:
-        - working: true
-          agent: "testing"
-          comment: "✅ PUT /api/assets/{asset_id} successfully updates existing assets. Fixed minor issue with missing company_id in update payload. Asset updates work correctly."
-
-  - task: "Assets PDF Report Generation"
-    implemented: true
-    working: true
-    file: "server.py"
-    stuck_count: 0
-    priority: "high"
-    needs_retesting: false
-    status_history:
-        - working: true
-          agent: "testing"
-          comment: "✅ GET /api/reports/assets/pdf generates PDF reports successfully. Returns proper Content-Type (application/pdf) with 3148 bytes of content. PDF includes assets grouped by company."
-
 frontend:
-  # No frontend testing performed as per instructions
+  - task: "PDF Reports for Tickets with Filters"
+    implemented: true
+    working: "NA"
+    file: "src/pages/Tickets.js"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+        - working: "NA"
+          agent: "testing"
+          comment: "NEW FUNCTIONALITY - Needs comprehensive testing of PDF report generation with filters (company, date range, ticket type). Must verify dialog functionality, filter options, and PDF download."
+
+  - task: "Company Logo Upload and Display"
+    implemented: true
+    working: "NA"
+    file: "src/pages/SystemConfig.js"
+    stuck_count: 0
+    priority: "medium"
+    needs_retesting: true
+    status_history:
+        - working: "NA"
+          agent: "testing"
+          comment: "EXISTING FUNCTIONALITY - Needs verification of logo upload functionality, file input, preview display, and supported formats."
+
+  - task: "Assets Grouping by Company"
+    implemented: true
+    working: "NA"
+    file: "src/pages/Assets.js"
+    stuck_count: 0
+    priority: "medium"
+    needs_retesting: true
+    status_history:
+        - working: "NA"
+          agent: "testing"
+          comment: "EXISTING FUNCTIONALITY - Needs verification that assets are properly grouped by company with company names, building icons, and asset counters."
+
+  - task: "Login and Authentication Flow"
+    implemented: true
+    working: "NA"
+    file: "src/pages/LoginPage.js"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+        - working: "NA"
+          agent: "testing"
+          comment: "PREREQUISITE - Must verify login functionality with admin credentials (admin@itsm.com / admin123) before testing other features."
 
 metadata:
   created_by: "testing_agent"
-  version: "1.0"
-  test_sequence: 1
-  run_ui: false
+  version: "2.0"
+  test_sequence: 2
+  run_ui: true
 
 test_plan:
   current_focus:
-    - "All Assets module tests completed successfully"
+    - "PDF Reports for Tickets with Filters"
+    - "Company Logo Upload and Display"
+    - "Assets Grouping by Company"
+    - "Login and Authentication Flow"
   stuck_tasks: []
   test_all: false
   test_priority: "high_first"
 
 agent_communication:
     - agent: "testing"
-      message: "Comprehensive testing of Assets module completed successfully. All 6 critical tests passed (100% success rate): Authentication, Companies listing, Assets listing, Asset creation, Asset update, and PDF generation. Fixed minor issue with asset update requiring company_id field. Backend APIs are fully functional and meet all requirements. Database contains 2 companies and 6+ assets as expected."
+      message: "Updated test plan for ITSM Pro new functionalities testing. Focus on: 1) Tickets PDF reports with filters (HIGH priority), 2) Logo functionality verification (MEDIUM), 3) Assets grouping verification (MEDIUM). All tests require UI automation with Playwright. Credentials: admin@itsm.com / admin123."
