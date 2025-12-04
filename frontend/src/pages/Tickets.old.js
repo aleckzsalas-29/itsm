@@ -7,7 +7,7 @@ import { Input } from '../components/ui/input';
 import { Label } from '../components/ui/label';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '../components/ui/dialog';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '../components/ui/tabs';
-import { Plus, Download, MessageSquare, FileText, AlertCircle } from 'lucide-react';
+import { Plus, Download, MessageSquare, FileText } from 'lucide-react';
 
 const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
 const API = `${BACKEND_URL}/api`;
@@ -17,7 +17,6 @@ const Tickets = () => {
   const [tickets, setTickets] = useState([]);
   const [companies, setCompanies] = useState([]);
   const [assets, setAssets] = useState([]);
-  const [services, setServices] = useState([]);
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [dialogOpen, setDialogOpen] = useState(false);
@@ -28,16 +27,18 @@ const Tickets = () => {
   const [formData, setFormData] = useState({
     company_id: '',
     asset_id: '',
-    service_id: '',
     title: '',
-    category: '',
-    priority: 'media',
-    requester: '',
-    assigned_to: '',
     description: '',
-    maintenance_log: ''
+    ticket_type: 'incident',
+    assigned_to: ''
   });
   const [filterType, setFilterType] = useState('all');
+  const [pdfFilter, setPdfFilter] = useState({
+    company_id: '',
+    start_date: '',
+    end_date: '',
+    ticket_type: ''
+  });
 
   useEffect(() => {
     fetchTickets();
@@ -46,7 +47,6 @@ const Tickets = () => {
       fetchUsers();
     }
     fetchAssets();
-    fetchServices();
   }, []);
 
   const fetchTickets = async () => {
@@ -81,17 +81,6 @@ const Tickets = () => {
       setAssets(response.data);
     } catch (error) {
       console.error('Error fetching assets:', error);
-    }
-  };
-
-  const fetchServices = async () => {
-    try {
-      const response = await axios.get(`${API}/services`, {
-        headers: getAuthHeader()
-      });
-      setServices(response.data);
-    } catch (error) {
-      console.error('Error fetching services:', error);
     }
   };
 
@@ -162,13 +151,13 @@ const Tickets = () => {
     }
   };
 
-  const handleDownloadPDF = async (company_id = '', start_date = '', end_date = '', category = '') => {
+  const handleDownloadPDF = async () => {
     try {
       const params = new URLSearchParams();
-      if (company_id) params.append('company_id', company_id);
-      if (start_date) params.append('start_date', start_date);
-      if (end_date) params.append('end_date', end_date);
-      if (category) params.append('ticket_type', category);
+      if (pdfFilter.company_id) params.append('company_id', pdfFilter.company_id);
+      if (pdfFilter.start_date) params.append('start_date', pdfFilter.start_date);
+      if (pdfFilter.end_date) params.append('end_date', pdfFilter.end_date);
+      if (pdfFilter.ticket_type) params.append('ticket_type', pdfFilter.ticket_type);
       
       const response = await axios.get(`${API}/reports/tickets/pdf?${params.toString()}`, {
         headers: getAuthHeader(),
@@ -193,14 +182,10 @@ const Tickets = () => {
     setFormData({
       company_id: '',
       asset_id: '',
-      service_id: '',
       title: '',
-      category: '',
-      priority: 'media',
-      requester: '',
-      assigned_to: '',
       description: '',
-      maintenance_log: ''
+      ticket_type: 'incident',
+      assigned_to: ''
     });
   };
 
@@ -225,13 +210,12 @@ const Tickets = () => {
     }
   };
 
-  const getPriorityColor = (priority) => {
-    switch (priority?.toLowerCase()) {
-      case 'baja': return 'bg-slate-100 text-slate-700';
-      case 'media': return 'bg-blue-100 text-blue-700';
-      case 'alta': return 'bg-orange-100 text-orange-700';
-      case 'crítica': return 'bg-red-100 text-red-700';
-      default: return 'bg-slate-100 text-slate-700';
+  const getTypeLabel = (type) => {
+    switch (type) {
+      case 'incident': return 'Incidente';
+      case 'request': return 'Solicitud';
+      case 'maintenance': return 'Mantenimiento';
+      default: return type;
     }
   };
 
@@ -261,19 +245,74 @@ const Tickets = () => {
             Tickets
           </h1>
           <p className="text-slate-600 mt-1" style={{ fontFamily: 'Inter, sans-serif' }}>
-            Gestiona incidentes, solicitudes y mantenimiento
+            Gestiona incidentes y solicitudes
           </p>
         </div>
         <div className="flex space-x-3">
-          <Button 
-            onClick={() => handleDownloadPDF()}
-            data-testid="download-pdf-button" 
-            variant="outline" 
-            className="border-blue-600 text-blue-600 hover:bg-blue-50"
-          >
-            <Download className="w-4 h-4 mr-2" />
-            Descargar PDF
-          </Button>
+          <Dialog>
+            <DialogTrigger asChild>
+              <Button data-testid="download-pdf-button" variant="outline" className="border-blue-600 text-blue-600 hover:bg-blue-50">
+                <Download className="w-4 h-4 mr-2" />
+                Descargar PDF
+              </Button>
+            </DialogTrigger>
+            <DialogContent>
+              <DialogHeader>
+                <DialogTitle>Generar Reporte PDF</DialogTitle>
+              </DialogHeader>
+              <div className="space-y-4">
+                {user?.role !== 'client' && (
+                  <div>
+                    <Label>Empresa (Opcional)</Label>
+                    <select
+                      value={pdfFilter.company_id}
+                      onChange={(e) => setPdfFilter({ ...pdfFilter, company_id: e.target.value })}
+                      className="w-full mt-1 px-3 py-2 border border-slate-300 rounded-lg"
+                    >
+                      <option value="">Todas las empresas</option>
+                      {companies.map((company) => (
+                        <option key={company.id} value={company.id}>{company.name}</option>
+                      ))}
+                    </select>
+                  </div>
+                )}
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <Label>Fecha Inicio</Label>
+                    <Input
+                      type="date"
+                      value={pdfFilter.start_date}
+                      onChange={(e) => setPdfFilter({ ...pdfFilter, start_date: e.target.value })}
+                    />
+                  </div>
+                  <div>
+                    <Label>Fecha Fin</Label>
+                    <Input
+                      type="date"
+                      value={pdfFilter.end_date}
+                      onChange={(e) => setPdfFilter({ ...pdfFilter, end_date: e.target.value })}
+                    />
+                  </div>
+                </div>
+                <div>
+                  <Label>Tipo (Opcional)</Label>
+                  <select
+                    value={pdfFilter.ticket_type}
+                    onChange={(e) => setPdfFilter({ ...pdfFilter, ticket_type: e.target.value })}
+                    className="w-full mt-1 px-3 py-2 border border-slate-300 rounded-lg"
+                  >
+                    <option value="">Todos los tipos</option>
+                    <option value="incident">Incidente</option>
+                    <option value="request">Solicitud</option>
+                    <option value="maintenance">Mantenimiento</option>
+                  </select>
+                </div>
+                <Button onClick={handleDownloadPDF} className="w-full bg-blue-600 hover:bg-blue-700 text-white">
+                  Generar Reporte
+                </Button>
+              </div>
+            </DialogContent>
+          </Dialog>
           
           <Dialog open={dialogOpen} onOpenChange={(open) => {
             setDialogOpen(open);
@@ -285,167 +324,100 @@ const Tickets = () => {
                 Nuevo Ticket
               </Button>
             </DialogTrigger>
-            <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+            <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
               <DialogHeader>
                 <DialogTitle>Nuevo Ticket</DialogTitle>
               </DialogHeader>
               <form onSubmit={handleSubmit} className="space-y-4">
-                <Tabs defaultValue="basic" className="w-full">
-                  <TabsList className="grid w-full grid-cols-2">
-                    <TabsTrigger value="basic">Información Básica</TabsTrigger>
-                    <TabsTrigger value="details">Detalles</TabsTrigger>
-                  </TabsList>
-
-                  <TabsContent value="basic" className="space-y-4">
-                    {user?.role !== 'client' && (
-                      <div>
-                        <Label htmlFor="company_id">Empresa Cliente *</Label>
-                        <select
-                          id="company_id"
-                          data-testid="ticket-company-select"
-                          value={formData.company_id}
-                          onChange={(e) => setFormData({ ...formData, company_id: e.target.value })}
-                          className="w-full mt-1 px-3 py-2 border border-slate-300 rounded-lg"
-                          required
-                        >
-                          <option value="">Seleccionar empresa...</option>
-                          {companies.map((company) => (
-                            <option key={company.id} value={company.id}>{company.name}</option>
-                          ))}
-                        </select>
-                      </div>
-                    )}
-                    <div className="grid grid-cols-2 gap-4">
-                      <div>
-                        <Label htmlFor="asset_id">Activo Afectado</Label>
-                        <select
-                          id="asset_id"
-                          data-testid="ticket-asset-select"
-                          value={formData.asset_id}
-                          onChange={(e) => setFormData({ ...formData, asset_id: e.target.value })}
-                          className="w-full mt-1 px-3 py-2 border border-slate-300 rounded-lg"
-                        >
-                          <option value="">Sin activo asociado</option>
-                          {assets.map((asset) => (
-                            <option key={asset.id} value={asset.id}>
-                              {asset.asset_type || asset.model} - {asset.serial_number}
-                            </option>
-                          ))}
-                        </select>
-                      </div>
-                      <div>
-                        <Label htmlFor="service_id">Servicio Contratado</Label>
-                        <select
-                          id="service_id"
-                          value={formData.service_id}
-                          onChange={(e) => setFormData({ ...formData, service_id: e.target.value })}
-                          className="w-full mt-1 px-3 py-2 border border-slate-300 rounded-lg"
-                        >
-                          <option value="">Sin servicio asociado</option>
-                          {services.map((service) => (
-                            <option key={service.id} value={service.id}>{service.service_name}</option>
-                          ))}
-                        </select>
-                      </div>
-                    </div>
+                {user?.role !== 'client' && (
+                  <div>
+                    <Label htmlFor="company_id">Empresa</Label>
+                    <select
+                      id="company_id"
+                      data-testid="ticket-company-select"
+                      value={formData.company_id}
+                      onChange={(e) => setFormData({ ...formData, company_id: e.target.value })}
+                      className="w-full mt-1 px-3 py-2 border border-slate-300 rounded-lg"
+                      required
+                    >
+                      <option value="">Seleccionar empresa...</option>
+                      {companies.map((company) => (
+                        <option key={company.id} value={company.id}>{company.name}</option>
+                      ))}
+                    </select>
+                  </div>
+                )}
+                <div>
+                  <Label htmlFor="asset_id">Activo (Opcional)</Label>
+                  <select
+                    id="asset_id"
+                    data-testid="ticket-asset-select"
+                    value={formData.asset_id}
+                    onChange={(e) => setFormData({ ...formData, asset_id: e.target.value })}
+                    className="w-full mt-1 px-3 py-2 border border-slate-300 rounded-lg"
+                  >
+                    <option value="">Sin activo asociado</option>
+                    {assets.map((asset) => (
+                      <option key={asset.id} value={asset.id}>{asset.name} - {asset.serial_number}</option>
+                    ))}
+                  </select>
+                </div>
+                <div>
+                  <Label htmlFor="title">Título</Label>
+                  <Input
+                    id="title"
+                    data-testid="ticket-title-input"
+                    value={formData.title}
+                    onChange={(e) => setFormData({ ...formData, title: e.target.value })}
+                    required
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="description">Descripción</Label>
+                  <textarea
+                    id="description"
+                    data-testid="ticket-description-input"
+                    value={formData.description}
+                    onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                    className="w-full mt-1 px-3 py-2 border border-slate-300 rounded-lg min-h-[120px]"
+                    required
+                  />
+                </div>
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <Label htmlFor="ticket_type">Tipo</Label>
+                    <select
+                      id="ticket_type"
+                      data-testid="ticket-type-select"
+                      value={formData.ticket_type}
+                      onChange={(e) => setFormData({ ...formData, ticket_type: e.target.value })}
+                      className="w-full mt-1 px-3 py-2 border border-slate-300 rounded-lg"
+                      required
+                    >
+                      <option value="incident">Incidente</option>
+                      <option value="request">Solicitud</option>
+                      <option value="maintenance">Mantenimiento</option>
+                    </select>
+                  </div>
+                  {user?.role !== 'client' && (
                     <div>
-                      <Label htmlFor="title">Título del Ticket *</Label>
-                      <Input
-                        id="title"
-                        data-testid="ticket-title-input"
-                        value={formData.title}
-                        onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-                        required
-                      />
+                      <Label htmlFor="assigned_to">Asignar a (Opcional)</Label>
+                      <select
+                        id="assigned_to"
+                        data-testid="ticket-assigned-select"
+                        value={formData.assigned_to}
+                        onChange={(e) => setFormData({ ...formData, assigned_to: e.target.value })}
+                        className="w-full mt-1 px-3 py-2 border border-slate-300 rounded-lg"
+                      >
+                        <option value="">Sin asignar</option>
+                        {users.map((u) => (
+                          <option key={u.id} value={u.id}>{u.name}</option>
+                        ))}
+                      </select>
                     </div>
-                    <div className="grid grid-cols-2 gap-4">
-                      <div>
-                        <Label htmlFor="category">Categoría</Label>
-                        <select
-                          id="category"
-                          value={formData.category}
-                          onChange={(e) => setFormData({ ...formData, category: e.target.value })}
-                          className="w-full mt-1 px-3 py-2 border border-slate-300 rounded-lg"
-                        >
-                          <option value="">Seleccionar categoría...</option>
-                          <option value="Incidente">Incidente</option>
-                          <option value="Solicitud">Solicitud</option>
-                          <option value="Mantenimiento Preventivo">Mantenimiento Preventivo</option>
-                          <option value="Mantenimiento Correctivo">Mantenimiento Correctivo</option>
-                          <option value="Consulta">Consulta</option>
-                        </select>
-                      </div>
-                      <div>
-                        <Label htmlFor="priority">Prioridad</Label>
-                        <select
-                          id="priority"
-                          value={formData.priority}
-                          onChange={(e) => setFormData({ ...formData, priority: e.target.value })}
-                          className="w-full mt-1 px-3 py-2 border border-slate-300 rounded-lg"
-                        >
-                          <option value="baja">Baja</option>
-                          <option value="media">Media</option>
-                          <option value="alta">Alta</option>
-                          <option value="crítica">Crítica</option>
-                        </select>
-                      </div>
-                    </div>
-                  </TabsContent>
-
-                  <TabsContent value="details" className="space-y-4">
-                    <div className="grid grid-cols-2 gap-4">
-                      <div>
-                        <Label htmlFor="requester">Solicitante</Label>
-                        <Input
-                          id="requester"
-                          value={formData.requester}
-                          onChange={(e) => setFormData({ ...formData, requester: e.target.value })}
-                          placeholder="Nombre del solicitante"
-                        />
-                      </div>
-                      {user?.role !== 'client' && (
-                        <div>
-                          <Label htmlFor="assigned_to">Asignar a Técnico</Label>
-                          <select
-                            id="assigned_to"
-                            data-testid="ticket-assigned-select"
-                            value={formData.assigned_to}
-                            onChange={(e) => setFormData({ ...formData, assigned_to: e.target.value })}
-                            className="w-full mt-1 px-3 py-2 border border-slate-300 rounded-lg"
-                          >
-                            <option value="">Sin asignar</option>
-                            {users.map((u) => (
-                              <option key={u.id} value={u.id}>{u.name}</option>
-                            ))}
-                          </select>
-                        </div>
-                      )}
-                    </div>
-                    <div>
-                      <Label htmlFor="description">Descripción del Problema *</Label>
-                      <textarea
-                        id="description"
-                        data-testid="ticket-description-input"
-                        value={formData.description}
-                        onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                        className="w-full mt-1 px-3 py-2 border border-slate-300 rounded-lg min-h-[120px]"
-                        required
-                      />
-                    </div>
-                    <div>
-                      <Label htmlFor="maintenance_log">Bitácora de Mantenimiento</Label>
-                      <textarea
-                        id="maintenance_log"
-                        value={formData.maintenance_log}
-                        onChange={(e) => setFormData({ ...formData, maintenance_log: e.target.value })}
-                        className="w-full mt-1 px-3 py-2 border border-slate-300 rounded-lg min-h-[100px]"
-                        placeholder="Acciones tomadas, observaciones..."
-                      />
-                    </div>
-                  </TabsContent>
-                </Tabs>
-
-                <div className="flex justify-end space-x-2 pt-4 border-t">
+                  )}
+                </div>
+                <div className="flex justify-end space-x-2 pt-4">
                   <Button type="button" variant="outline" onClick={() => setDialogOpen(false)}>
                     Cancelar
                   </Button>
@@ -485,24 +457,16 @@ const Tickets = () => {
             >
               <div className="flex items-start justify-between">
                 <div className="flex-1">
-                  <div className="flex items-center space-x-3 mb-2 flex-wrap gap-2">
+                  <div className="flex items-center space-x-3 mb-2">
                     <h3 className="text-lg font-semibold text-slate-800" style={{ fontFamily: 'Inter, sans-serif' }}>
                       {ticket.title}
                     </h3>
                     <span className={`px-3 py-1 rounded-full text-xs font-medium border ${getStatusColor(ticket.status)}`}>
                       {getStatusLabel(ticket.status)}
                     </span>
-                    {ticket.priority && (
-                      <span className={`px-3 py-1 rounded-full text-xs font-medium ${getPriorityColor(ticket.priority)}`}>
-                        <AlertCircle className="w-3 h-3 inline mr-1" />
-                        {ticket.priority}
-                      </span>
-                    )}
-                    {ticket.category && (
-                      <span className="px-3 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
-                        {ticket.category}
-                      </span>
-                    )}
+                    <span className="px-3 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                      {getTypeLabel(ticket.ticket_type)}
+                    </span>
                   </div>
                   <p className="text-slate-600 text-sm mb-3">{ticket.description}</p>
                   <div className="flex items-center space-x-4 text-xs text-slate-500">
@@ -515,12 +479,6 @@ const Tickets = () => {
                         day: 'numeric'
                       })}
                     </span>
-                    {ticket.requester && (
-                      <>
-                        <span>•</span>
-                        <span>Solicitante: {ticket.requester}</span>
-                      </>
-                    )}
                   </div>
                 </div>
                 {user?.role !== 'client' && (
@@ -554,44 +512,22 @@ const Tickets = () => {
               </DialogHeader>
               <div className="space-y-6">
                 <div>
-                  <h4 className="font-semibold text-slate-800 mb-2">Descripción del Problema</h4>
+                  <h4 className="font-semibold text-slate-800 mb-2">Descripción</h4>
                   <p className="text-slate-600">{selectedTicket.description}</p>
                 </div>
-                {selectedTicket.maintenance_log && (
-                  <div>
-                    <h4 className="font-semibold text-slate-800 mb-2">Bitácora de Mantenimiento</h4>
-                    <p className="text-slate-600">{selectedTicket.maintenance_log}</p>
-                  </div>
-                )}
-                {selectedTicket.final_resolution && (
-                  <div>
-                    <h4 className="font-semibold text-slate-800 mb-2">Resolución Final</h4>
-                    <p className="text-slate-600">{selectedTicket.final_resolution}</p>
-                  </div>
-                )}
                 <div className="grid grid-cols-2 gap-4 text-sm">
                   <div>
                     <span className="text-slate-600">Estado:</span>
                     <p className="font-medium text-slate-800">{getStatusLabel(selectedTicket.status)}</p>
                   </div>
                   <div>
-                    <span className="text-slate-600">Prioridad:</span>
-                    <p className="font-medium text-slate-800">{selectedTicket.priority || 'No especificada'}</p>
+                    <span className="text-slate-600">Tipo:</span>
+                    <p className="font-medium text-slate-800">{getTypeLabel(selectedTicket.ticket_type)}</p>
                   </div>
-                  <div>
-                    <span className="text-slate-600">Categoría:</span>
-                    <p className="font-medium text-slate-800">{selectedTicket.category || 'No especificada'}</p>
-                  </div>
-                  {selectedTicket.requester && (
-                    <div>
-                      <span className="text-slate-600">Solicitante:</span>
-                      <p className="font-medium text-slate-800">{selectedTicket.requester}</p>
-                    </div>
-                  )}
                 </div>
                 <div>
                   <div className="flex items-center justify-between mb-4">
-                    <h4 className="font-semibold text-slate-800">Notas / Comentarios</h4>
+                    <h4 className="font-semibold text-slate-800">Notas / Bitácora</h4>
                     <MessageSquare className="w-5 h-5 text-slate-400" />
                   </div>
                   <div className="space-y-3 mb-4 max-h-60 overflow-y-auto">
