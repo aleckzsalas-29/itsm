@@ -252,6 +252,34 @@ const Tickets = () => {
     }
   };
 
+  const handleDownloadPDF = async () => {
+    try {
+      const params = new URLSearchParams();
+      if (pdfFilters.company_id) params.append('company_id', pdfFilters.company_id);
+      if (pdfFilters.start_date) params.append('start_date', pdfFilters.start_date);
+      if (pdfFilters.end_date) params.append('end_date', pdfFilters.end_date);
+      if (pdfFilters.ticket_type) params.append('ticket_type', pdfFilters.ticket_type);
+
+      const response = await axios.get(`${API}/reports/tickets/pdf?${params.toString()}`, {
+        headers: getAuthHeader(),
+        responseType: 'blob'
+      });
+      
+      const url = window.URL.createObjectURL(new Blob([response.data]));
+      const link = document.createElement('a');
+      link.href = url;
+      link.setAttribute('download', 'reporte_tickets.pdf');
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      
+      toast.success('Reporte descargado exitosamente');
+      setPdfDialogOpen(false);
+    } catch (error) {
+      toast.error('Error al generar reporte');
+    }
+  };
+
   if (loading) {
     return (
       <div className="flex items-center justify-center h-96">
