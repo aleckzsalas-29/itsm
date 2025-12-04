@@ -174,31 +174,55 @@ class AssetCreate(BaseModel):
 class Ticket(BaseModel):
     model_config = ConfigDict(extra="ignore")
     id: str = Field(default_factory=lambda: str(uuid.uuid4()))
-    company_id: str
-    asset_id: Optional[str] = None
-    title: str
-    description: str
-    ticket_type: str  # incident, request, maintenance
-    status: str  # open, in_progress, resolved, closed
-    assigned_to: Optional[str] = None  # User ID
+    
+    # Relaciones
+    asset_id: Optional[str] = None  # ID_Activo_Afectado
+    company_id: str  # Empresa_Cliente
+    service_id: Optional[str] = None  # Servicio_Contratado_Afectado
+    
+    # Información del Ticket
+    title: str  # Titulo_Ticket
+    category: Optional[str] = None  # Categoria
+    priority: Optional[str] = None  # Prioridad (Baja, Media, Alta, Crítica)
+    status: str = "open"  # Estado (open, in_progress, resolved, closed)
+    
+    # Personas
+    requester: Optional[str] = None  # Solicitante
+    assigned_to: Optional[str] = None  # Asignado_a_Tecnico (User ID)
     created_by: str  # User ID
-    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+    
+    # Descripciones
+    description: str  # Descripcion_del_Problema
+    maintenance_log: Optional[str] = None  # Bitacora_Mantenimiento
+    final_resolution: Optional[str] = None  # Resolucion_Final
+    
+    # Fechas
+    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))  # Fecha_Creacion
     updated_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
-    resolved_at: Optional[datetime] = None
+    resolved_at: Optional[datetime] = None  # Fecha_Hora_Resolucion
 
 class TicketCreate(BaseModel):
     company_id: str
     asset_id: Optional[str] = None
+    service_id: Optional[str] = None
     title: str
-    description: str
-    ticket_type: str
+    category: Optional[str] = None
+    priority: Optional[str] = None
+    requester: Optional[str] = None
     assigned_to: Optional[str] = None
+    description: str
+    maintenance_log: Optional[str] = None
 
 class TicketUpdate(BaseModel):
     status: Optional[str] = None
     assigned_to: Optional[str] = None
     title: Optional[str] = None
     description: Optional[str] = None
+    category: Optional[str] = None
+    priority: Optional[str] = None
+    requester: Optional[str] = None
+    maintenance_log: Optional[str] = None
+    final_resolution: Optional[str] = None
 
 class TicketNote(BaseModel):
     model_config = ConfigDict(extra="ignore")
