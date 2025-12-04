@@ -38,6 +38,13 @@ const Tickets = () => {
     maintenance_log: ''
   });
   const [filterType, setFilterType] = useState('all');
+  const [pdfDialogOpen, setPdfDialogOpen] = useState(false);
+  const [pdfFilters, setPdfFilters] = useState({
+    company_id: '',
+    start_date: '',
+    end_date: '',
+    ticket_type: ''
+  });
 
   useEffect(() => {
     fetchTickets();
