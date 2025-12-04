@@ -213,6 +213,42 @@ const Assets = () => {
     );
   }
 
+  const handleDownloadPDF = async () => {
+    try {
+      const response = await axios.get(`${API}/reports/assets/pdf`, {
+        headers: getAuthHeader(),
+        responseType: 'blob'
+      });
+      
+      const url = window.URL.createObjectURL(new Blob([response.data]));
+      const link = document.createElement('a');
+      link.href = url;
+      link.setAttribute('download', 'reporte_activos.pdf');
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      
+      toast.success('Reporte descargado exitosamente');
+    } catch (error) {
+      toast.error('Error al generar reporte');
+    }
+  };
+
+  // Group assets by company
+  const assetsByCompany = assets.reduce((acc, asset) => {
+    const companyId = asset.company_id;
+    if (!acc[companyId]) {
+      acc[companyId] = [];
+    }
+    acc[companyId].push(asset);
+    return acc;
+  }, {});
+
+  const getCompanyName = (companyId) => {
+    const company = companies.find(c => c.id === companyId);
+    return company ? company.name : 'Empresa Desconocida';
+  };
+
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
@@ -224,17 +260,27 @@ const Assets = () => {
             Gestiona el inventario de equipos
           </p>
         </div>
-        {user?.role !== 'client' && (
-          <Dialog open={dialogOpen} onOpenChange={(open) => {
-            setDialogOpen(open);
-            if (!open) resetForm();
-          }}>
-            <DialogTrigger asChild>
-              <Button data-testid="add-asset-button" className="bg-blue-600 hover:bg-blue-700 text-white">
-                <Plus className="w-4 h-4 mr-2" />
-                Nuevo Activo
-              </Button>
-            </DialogTrigger>
+        <div className="flex space-x-3">
+          <Button 
+            onClick={handleDownloadPDF}
+            data-testid="download-assets-pdf-button" 
+            variant="outline" 
+            className="border-blue-600 text-blue-600 hover:bg-blue-50"
+          >
+            <Download className="w-4 h-4 mr-2" />
+            Descargar PDF
+          </Button>
+          {user?.role !== 'client' && (
+            <Dialog open={dialogOpen} onOpenChange={(open) => {
+              setDialogOpen(open);
+              if (!open) resetForm();
+            }}>
+              <DialogTrigger asChild>
+                <Button data-testid="add-asset-button" className="bg-blue-600 hover:bg-blue-700 text-white">
+                  <Plus className="w-4 h-4 mr-2" />
+                  Nuevo Activo
+                </Button>
+              </DialogTrigger>
             <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
               <DialogHeader>
                 <DialogTitle>
