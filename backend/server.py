@@ -84,23 +84,91 @@ class Asset(BaseModel):
     model_config = ConfigDict(extra="ignore")
     id: str = Field(default_factory=lambda: str(uuid.uuid4()))
     company_id: str
-    name: str
-    model: str
-    serial_number: str
-    location: str
-    status: str  # active, in_repair, retired
-    purchase_date: Optional[str] = None
-    notes: Optional[str] = None
+    
+    # I. Información Básica
+    asset_type: Optional[str] = None  # Tipo de Activo
+    manufacturer: Optional[str] = None  # Fabricante
+    model: Optional[str] = None  # Modelo
+    serial_number: Optional[str] = None  # Número de Serie (S/N)
+    host_name: Optional[str] = None  # Nombre Host
+    
+    # Credenciales Windows
+    windows_user: Optional[str] = None
+    windows_password: Optional[str] = None
+    
+    # Correos electrónicos
+    email_accounts: Optional[str] = None  # Correos y contraseñas (JSON o texto)
+    
+    # Usuario Nube y Respaldo
+    cloud_user: Optional[str] = None
+    backup_folder: Optional[str] = None
+    
+    # II. Operación y Ubicación
+    location: Optional[str] = None  # Ubicación Física
+    status: str = "active"  # Estado del Activo (active, retired, in_repair)
+    ip_address: Optional[str] = None  # Dirección IP
+    operating_system: Optional[str] = None  # Sistema Operativo
+    os_version: Optional[str] = None  # Versión SO
+    
+    # III. Especificaciones Técnicas (Hardware)
+    cpu_processor: Optional[str] = None  # CPU/Procesador
+    ram_gb: Optional[str] = None  # Memoria RAM (GB)
+    storage_type_capacity: Optional[str] = None  # Almacenamiento (Tipo/Capacidad)
+    graphics_card: Optional[str] = None  # Tarjeta Gráfica/GPU
+    network_ports: Optional[str] = None  # Puertos de Red
+    
+    # IV. Gestión Financiera y Soporte
+    purchase_date: Optional[str] = None  # Fecha de Compra
+    purchase_value: Optional[str] = None  # Valor de Compra
+    warranty_expiration: Optional[str] = None  # Fecha Vencimiento Garantía
+    support_provider: Optional[str] = None  # Proveedor de Soporte
+    estimated_life_months: Optional[int] = None  # Vida Útil Estimada (Meses)
+    
+    notes: Optional[str] = None  # Notas Adicionales
     created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
 
 class AssetCreate(BaseModel):
     company_id: str
-    name: str
-    model: str
-    serial_number: str
-    location: str
-    status: str
+    
+    # I. Información Básica
+    asset_type: Optional[str] = None
+    manufacturer: Optional[str] = None
+    model: Optional[str] = None
+    serial_number: Optional[str] = None
+    host_name: Optional[str] = None
+    
+    # Credenciales Windows
+    windows_user: Optional[str] = None
+    windows_password: Optional[str] = None
+    
+    # Correos electrónicos
+    email_accounts: Optional[str] = None
+    
+    # Usuario Nube y Respaldo
+    cloud_user: Optional[str] = None
+    backup_folder: Optional[str] = None
+    
+    # II. Operación y Ubicación
+    location: Optional[str] = None
+    status: str = "active"
+    ip_address: Optional[str] = None
+    operating_system: Optional[str] = None
+    os_version: Optional[str] = None
+    
+    # III. Especificaciones Técnicas (Hardware)
+    cpu_processor: Optional[str] = None
+    ram_gb: Optional[str] = None
+    storage_type_capacity: Optional[str] = None
+    graphics_card: Optional[str] = None
+    network_ports: Optional[str] = None
+    
+    # IV. Gestión Financiera y Soporte
     purchase_date: Optional[str] = None
+    purchase_value: Optional[str] = None
+    warranty_expiration: Optional[str] = None
+    support_provider: Optional[str] = None
+    estimated_life_months: Optional[int] = None
+    
     notes: Optional[str] = None
 
 class Ticket(BaseModel):
