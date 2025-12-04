@@ -6,6 +6,7 @@ import { Button } from '../components/ui/button';
 import { Input } from '../components/ui/input';
 import { Label } from '../components/ui/label';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '../components/ui/dialog';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '../components/ui/tabs';
 import { Plus, Pencil, Trash2, HardDrive, AlertCircle, CheckCircle } from 'lucide-react';
 
 const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
@@ -20,33 +21,26 @@ const Assets = () => {
   const [editingAsset, setEditingAsset] = useState(null);
   const [formData, setFormData] = useState({
     company_id: '',
-    // I. Información Básica
     asset_type: '',
     manufacturer: '',
     model: '',
     serial_number: '',
     host_name: '',
-    // Credenciales Windows
     windows_user: '',
     windows_password: '',
-    // Correos
     email_accounts: '',
-    // Nube y Respaldo
     cloud_user: '',
     backup_folder: '',
-    // II. Operación y Ubicación
     location: '',
     status: 'active',
     ip_address: '',
     operating_system: '',
     os_version: '',
-    // III. Especificaciones Técnicas
     cpu_processor: '',
     ram_gb: '',
     storage_type_capacity: '',
     graphics_card: '',
     network_ports: '',
-    // IV. Gestión Financiera
     purchase_date: '',
     purchase_value: '',
     warranty_expiration: '',
@@ -241,110 +235,313 @@ const Assets = () => {
                 Nuevo Activo
               </Button>
             </DialogTrigger>
-            <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+            <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
               <DialogHeader>
                 <DialogTitle>
                   {editingAsset ? 'Editar Activo' : 'Nuevo Activo'}
                 </DialogTitle>
               </DialogHeader>
-              <form onSubmit={handleSubmit} className="space-y-4">
-                <div>
-                  <Label htmlFor="company_id">Empresa</Label>
-                  <select
-                    id="company_id"
-                    data-testid="asset-company-select"
-                    value={formData.company_id}
-                    onChange={(e) => setFormData({ ...formData, company_id: e.target.value })}
-                    className="w-full mt-1 px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    required
-                  >
-                    <option value="">Seleccionar empresa...</option>
-                    {companies.map((company) => (
-                      <option key={company.id} value={company.id}>{company.name}</option>
-                    ))}
-                  </select>
-                </div>
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <Label htmlFor="name">Nombre del Activo</Label>
-                    <Input
-                      id="name"
-                      data-testid="asset-name-input"
-                      value={formData.name}
-                      onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                      required
-                    />
-                  </div>
-                  <div>
-                    <Label htmlFor="model">Modelo</Label>
-                    <Input
-                      id="model"
-                      data-testid="asset-model-input"
-                      value={formData.model}
-                      onChange={(e) => setFormData({ ...formData, model: e.target.value })}
-                      required
-                    />
-                  </div>
-                </div>
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <Label htmlFor="serial_number">Número de Serie</Label>
-                    <Input
-                      id="serial_number"
-                      data-testid="asset-serial-input"
-                      value={formData.serial_number}
-                      onChange={(e) => setFormData({ ...formData, serial_number: e.target.value })}
-                      required
-                    />
-                  </div>
-                  <div>
-                    <Label htmlFor="location">Ubicación</Label>
-                    <Input
-                      id="location"
-                      data-testid="asset-location-input"
-                      value={formData.location}
-                      onChange={(e) => setFormData({ ...formData, location: e.target.value })}
-                      required
-                    />
-                  </div>
-                </div>
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <Label htmlFor="status">Estado</Label>
-                    <select
-                      id="status"
-                      data-testid="asset-status-select"
-                      value={formData.status}
-                      onChange={(e) => setFormData({ ...formData, status: e.target.value })}
-                      className="w-full mt-1 px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                      required
-                    >
-                      <option value="active">Activo</option>
-                      <option value="in_repair">En Reparación</option>
-                      <option value="retired">Retirado</option>
-                    </select>
-                  </div>
-                  <div>
-                    <Label htmlFor="purchase_date">Fecha de Compra</Label>
-                    <Input
-                      id="purchase_date"
-                      type="date"
-                      value={formData.purchase_date}
-                      onChange={(e) => setFormData({ ...formData, purchase_date: e.target.value })}
-                    />
-                  </div>
-                </div>
-                <div>
-                  <Label htmlFor="notes">Notas</Label>
-                  <textarea
-                    id="notes"
-                    data-testid="asset-notes-input"
-                    value={formData.notes}
-                    onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
-                    className="w-full mt-1 px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 min-h-[100px]"
-                  />
-                </div>
-                <div className="flex justify-end space-x-2 pt-4">
+              <form onSubmit={handleSubmit} className="space-y-6">
+                <Tabs defaultValue="basic" className="w-full">
+                  <TabsList className="grid w-full grid-cols-4">
+                    <TabsTrigger value="basic">Básico</TabsTrigger>
+                    <TabsTrigger value="operation">Operación</TabsTrigger>
+                    <TabsTrigger value="hardware">Hardware</TabsTrigger>
+                    <TabsTrigger value="financial">Financiero</TabsTrigger>
+                  </TabsList>
+
+                  {/* BASIC TAB */}
+                  <TabsContent value="basic" className="space-y-4">
+                    <div>
+                      <Label htmlFor="company_id">Empresa *</Label>
+                      <select
+                        id="company_id"
+                        data-testid="asset-company-select"
+                        value={formData.company_id}
+                        onChange={(e) => setFormData({ ...formData, company_id: e.target.value })}
+                        className="w-full mt-1 px-3 py-2 border border-slate-300 rounded-lg"
+                        required
+                      >
+                        <option value="">Seleccionar empresa...</option>
+                        {companies.map((company) => (
+                          <option key={company.id} value={company.id}>{company.name}</option>
+                        ))}
+                      </select>
+                    </div>
+                    <div className="grid grid-cols-2 gap-4">
+                      <div>
+                        <Label htmlFor="asset_type">Tipo de Activo</Label>
+                        <Input
+                          id="asset_type"
+                          value={formData.asset_type}
+                          onChange={(e) => setFormData({ ...formData, asset_type: e.target.value })}
+                          placeholder="ej. Laptop, Servidor, Router"
+                        />
+                      </div>
+                      <div>
+                        <Label htmlFor="manufacturer">Fabricante</Label>
+                        <Input
+                          id="manufacturer"
+                          value={formData.manufacturer}
+                          onChange={(e) => setFormData({ ...formData, manufacturer: e.target.value })}
+                          placeholder="ej. Dell, HP, Lenovo"
+                        />
+                      </div>
+                    </div>
+                    <div className="grid grid-cols-2 gap-4">
+                      <div>
+                        <Label htmlFor="model">Modelo</Label>
+                        <Input
+                          id="model"
+                          data-testid="asset-model-input"
+                          value={formData.model}
+                          onChange={(e) => setFormData({ ...formData, model: e.target.value })}
+                          placeholder="ej. PowerEdge R740"
+                        />
+                      </div>
+                      <div>
+                        <Label htmlFor="serial_number">Número de Serie (S/N)</Label>
+                        <Input
+                          id="serial_number"
+                          data-testid="asset-serial-input"
+                          value={formData.serial_number}
+                          onChange={(e) => setFormData({ ...formData, serial_number: e.target.value })}
+                        />
+                      </div>
+                    </div>
+                    <div className="grid grid-cols-2 gap-4">
+                      <div>
+                        <Label htmlFor="host_name">Nombre Host</Label>
+                        <Input
+                          id="host_name"
+                          value={formData.host_name}
+                          onChange={(e) => setFormData({ ...formData, host_name: e.target.value })}
+                        />
+                      </div>
+                      <div>
+                        <Label htmlFor="windows_user">Usuario Windows</Label>
+                        <Input
+                          id="windows_user"
+                          value={formData.windows_user}
+                          onChange={(e) => setFormData({ ...formData, windows_user: e.target.value })}
+                        />
+                      </div>
+                    </div>
+                    <div>
+                      <Label htmlFor="windows_password">Contraseña Windows</Label>
+                      <Input
+                        id="windows_password"
+                        type="password"
+                        value={formData.windows_password}
+                        onChange={(e) => setFormData({ ...formData, windows_password: e.target.value })}
+                      />
+                    </div>
+                    <div>
+                      <Label htmlFor="email_accounts">Correos Electrónicos y Contraseñas</Label>
+                      <textarea
+                        id="email_accounts"
+                        value={formData.email_accounts}
+                        onChange={(e) => setFormData({ ...formData, email_accounts: e.target.value })}
+                        className="w-full mt-1 px-3 py-2 border border-slate-300 rounded-lg min-h-[80px]"
+                        placeholder="ej. correo1@example.com: password1"
+                      />
+                    </div>
+                    <div className="grid grid-cols-2 gap-4">
+                      <div>
+                        <Label htmlFor="cloud_user">Usuario Nube</Label>
+                        <Input
+                          id="cloud_user"
+                          value={formData.cloud_user}
+                          onChange={(e) => setFormData({ ...formData, cloud_user: e.target.value })}
+                        />
+                      </div>
+                      <div>
+                        <Label htmlFor="backup_folder">Carpeta Respaldo</Label>
+                        <Input
+                          id="backup_folder"
+                          value={formData.backup_folder}
+                          onChange={(e) => setFormData({ ...formData, backup_folder: e.target.value })}
+                        />
+                      </div>
+                    </div>
+                  </TabsContent>
+
+                  {/* OPERATION TAB */}
+                  <TabsContent value="operation" className="space-y-4">
+                    <div className="grid grid-cols-2 gap-4">
+                      <div>
+                        <Label htmlFor="location">Ubicación Física</Label>
+                        <Input
+                          id="location"
+                          data-testid="asset-location-input"
+                          value={formData.location}
+                          onChange={(e) => setFormData({ ...formData, location: e.target.value })}
+                        />
+                      </div>
+                      <div>
+                        <Label htmlFor="status">Estado del Activo</Label>
+                        <select
+                          id="status"
+                          data-testid="asset-status-select"
+                          value={formData.status}
+                          onChange={(e) => setFormData({ ...formData, status: e.target.value })}
+                          className="w-full mt-1 px-3 py-2 border border-slate-300 rounded-lg"
+                        >
+                          <option value="active">Activo</option>
+                          <option value="in_repair">En Reparación</option>
+                          <option value="retired">Retirado</option>
+                        </select>
+                      </div>
+                    </div>
+                    <div className="grid grid-cols-2 gap-4">
+                      <div>
+                        <Label htmlFor="ip_address">Dirección IP</Label>
+                        <Input
+                          id="ip_address"
+                          value={formData.ip_address}
+                          onChange={(e) => setFormData({ ...formData, ip_address: e.target.value })}
+                          placeholder="ej. 192.168.1.100"
+                        />
+                      </div>
+                      <div>
+                        <Label htmlFor="operating_system">Sistema Operativo</Label>
+                        <Input
+                          id="operating_system"
+                          value={formData.operating_system}
+                          onChange={(e) => setFormData({ ...formData, operating_system: e.target.value })}
+                          placeholder="ej. Windows Server 2022"
+                        />
+                      </div>
+                    </div>
+                    <div>
+                      <Label htmlFor="os_version">Versión SO</Label>
+                      <Input
+                        id="os_version"
+                        value={formData.os_version}
+                        onChange={(e) => setFormData({ ...formData, os_version: e.target.value })}
+                        placeholder="ej. 21H2"
+                      />
+                    </div>
+                  </TabsContent>
+
+                  {/* HARDWARE TAB */}
+                  <TabsContent value="hardware" className="space-y-4">
+                    <div className="grid grid-cols-2 gap-4">
+                      <div>
+                        <Label htmlFor="cpu_processor">CPU/Procesador</Label>
+                        <Input
+                          id="cpu_processor"
+                          value={formData.cpu_processor}
+                          onChange={(e) => setFormData({ ...formData, cpu_processor: e.target.value })}
+                          placeholder="ej. Intel Xeon E5-2680 v4"
+                        />
+                      </div>
+                      <div>
+                        <Label htmlFor="ram_gb">Memoria RAM (GB)</Label>
+                        <Input
+                          id="ram_gb"
+                          value={formData.ram_gb}
+                          onChange={(e) => setFormData({ ...formData, ram_gb: e.target.value })}
+                          placeholder="ej. 32 GB"
+                        />
+                      </div>
+                    </div>
+                    <div>
+                      <Label htmlFor="storage_type_capacity">Almacenamiento (Tipo/Capacidad)</Label>
+                      <Input
+                        id="storage_type_capacity"
+                        value={formData.storage_type_capacity}
+                        onChange={(e) => setFormData({ ...formData, storage_type_capacity: e.target.value })}
+                        placeholder="ej. SSD 1TB + HDD 4TB"
+                      />
+                    </div>
+                    <div className="grid grid-cols-2 gap-4">
+                      <div>
+                        <Label htmlFor="graphics_card">Tarjeta Gráfica/GPU</Label>
+                        <Input
+                          id="graphics_card"
+                          value={formData.graphics_card}
+                          onChange={(e) => setFormData({ ...formData, graphics_card: e.target.value })}
+                          placeholder="ej. NVIDIA RTX 3080"
+                        />
+                      </div>
+                      <div>
+                        <Label htmlFor="network_ports">Puertos de Red</Label>
+                        <Input
+                          id="network_ports"
+                          value={formData.network_ports}
+                          onChange={(e) => setFormData({ ...formData, network_ports: e.target.value })}
+                          placeholder="ej. 4x Gigabit Ethernet"
+                        />
+                      </div>
+                    </div>
+                  </TabsContent>
+
+                  {/* FINANCIAL TAB */}
+                  <TabsContent value="financial" className="space-y-4">
+                    <div className="grid grid-cols-2 gap-4">
+                      <div>
+                        <Label htmlFor="purchase_date">Fecha de Compra</Label>
+                        <Input
+                          id="purchase_date"
+                          type="date"
+                          value={formData.purchase_date}
+                          onChange={(e) => setFormData({ ...formData, purchase_date: e.target.value })}
+                        />
+                      </div>
+                      <div>
+                        <Label htmlFor="purchase_value">Valor de Compra</Label>
+                        <Input
+                          id="purchase_value"
+                          value={formData.purchase_value}
+                          onChange={(e) => setFormData({ ...formData, purchase_value: e.target.value })}
+                          placeholder="ej. $2500 USD"
+                        />
+                      </div>
+                    </div>
+                    <div className="grid grid-cols-2 gap-4">
+                      <div>
+                        <Label htmlFor="warranty_expiration">Fecha Vencimiento Garantía</Label>
+                        <Input
+                          id="warranty_expiration"
+                          type="date"
+                          value={formData.warranty_expiration}
+                          onChange={(e) => setFormData({ ...formData, warranty_expiration: e.target.value })}
+                        />
+                      </div>
+                      <div>
+                        <Label htmlFor="support_provider">Proveedor de Soporte</Label>
+                        <Input
+                          id="support_provider"
+                          value={formData.support_provider}
+                          onChange={(e) => setFormData({ ...formData, support_provider: e.target.value })}
+                        />
+                      </div>
+                    </div>
+                    <div>
+                      <Label htmlFor="estimated_life_months">Vida Útil Estimada (Meses)</Label>
+                      <Input
+                        id="estimated_life_months"
+                        type="number"
+                        value={formData.estimated_life_months}
+                        onChange={(e) => setFormData({ ...formData, estimated_life_months: e.target.value })}
+                        placeholder="ej. 60"
+                      />
+                    </div>
+                    <div>
+                      <Label htmlFor="notes">Notas Adicionales</Label>
+                      <textarea
+                        id="notes"
+                        data-testid="asset-notes-input"
+                        value={formData.notes}
+                        onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
+                        className="w-full mt-1 px-3 py-2 border border-slate-300 rounded-lg min-h-[100px]"
+                      />
+                    </div>
+                  </TabsContent>
+                </Tabs>
+
+                <div className="flex justify-end space-x-2 pt-4 border-t">
                   <Button
                     type="button"
                     variant="outline"
@@ -390,9 +587,9 @@ const Assets = () => {
                   </div>
                   <div>
                     <h3 className="font-semibold text-slate-800" style={{ fontFamily: 'Inter, sans-serif' }}>
-                      {asset.name}
+                      {asset.asset_type || asset.model || 'Activo'}
                     </h3>
-                    <p className="text-xs text-slate-600">{asset.model}</p>
+                    <p className="text-xs text-slate-600">{asset.manufacturer} {asset.model}</p>
                   </div>
                 </div>
                 {user?.role !== 'client' && (
@@ -415,17 +612,39 @@ const Assets = () => {
                 )}
               </div>
               <div className="space-y-2 text-sm">
-                <div>
-                  <span className="text-slate-600">Número de Serie:</span>
-                  <p className="font-medium text-slate-800">{asset.serial_number}</p>
-                </div>
-                <div>
-                  <span className="text-slate-600">Ubicación:</span>
-                  <p className="font-medium text-slate-800">{asset.location}</p>
-                </div>
+                {asset.serial_number && (
+                  <div>
+                    <span className="text-slate-600">S/N:</span>
+                    <p className="font-medium text-slate-800">{asset.serial_number}</p>
+                  </div>
+                )}
+                {asset.host_name && (
+                  <div>
+                    <span className="text-slate-600">Host:</span>
+                    <p className="font-medium text-slate-800">{asset.host_name}</p>
+                  </div>
+                )}
+                {asset.location && (
+                  <div>
+                    <span className="text-slate-600">Ubicación:</span>
+                    <p className="font-medium text-slate-800">{asset.location}</p>
+                  </div>
+                )}
+                {asset.ip_address && (
+                  <div>
+                    <span className="text-slate-600">IP:</span>
+                    <p className="font-medium text-slate-800">{asset.ip_address}</p>
+                  </div>
+                )}
+                {asset.operating_system && (
+                  <div>
+                    <span className="text-slate-600">SO:</span>
+                    <p className="font-medium text-slate-800">{asset.operating_system}</p>
+                  </div>
+                )}
                 <div>
                   <span className="text-slate-600">Estado:</span>
-                  <p className={`font-medium inline-block px-2 py-1 rounded-full text-xs ${
+                  <p className={`font-medium inline-block px-2 py-1 rounded-full text-xs ml-2 ${
                     asset.status === 'active' ? 'bg-green-100 text-green-800' :
                     asset.status === 'in_repair' ? 'bg-yellow-100 text-yellow-800' :
                     'bg-red-100 text-red-800'
@@ -433,12 +652,6 @@ const Assets = () => {
                     {getStatusLabel(asset.status)}
                   </p>
                 </div>
-                {asset.notes && (
-                  <div>
-                    <span className="text-slate-600">Notas:</span>
-                    <p className="font-medium text-slate-800 text-xs">{asset.notes}</p>
-                  </div>
-                )}
               </div>
             </div>
           ))}
