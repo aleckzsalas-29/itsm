@@ -169,13 +169,13 @@ const Tickets = () => {
     }
   };
 
-  const handleDownloadPDF = async (company_id = '', start_date = '', end_date = '', category = '') => {
+  const handleDownloadPDF = async () => {
     try {
       const params = new URLSearchParams();
-      if (company_id) params.append('company_id', company_id);
-      if (start_date) params.append('start_date', start_date);
-      if (end_date) params.append('end_date', end_date);
-      if (category) params.append('ticket_type', category);
+      if (pdfFilters.company_id) params.append('company_id', pdfFilters.company_id);
+      if (pdfFilters.start_date) params.append('start_date', pdfFilters.start_date);
+      if (pdfFilters.end_date) params.append('end_date', pdfFilters.end_date);
+      if (pdfFilters.ticket_type) params.append('ticket_type', pdfFilters.ticket_type);
       
       const response = await axios.get(`${API}/reports/tickets/pdf?${params.toString()}`, {
         headers: getAuthHeader(),
@@ -191,6 +191,7 @@ const Tickets = () => {
       link.remove();
       
       toast.success('Reporte descargado exitosamente');
+      setPdfDialogOpen(false);
     } catch (error) {
       toast.error('Error al generar reporte');
     }
