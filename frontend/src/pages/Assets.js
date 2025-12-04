@@ -606,6 +606,7 @@ const Assets = () => {
             </DialogContent>
           </Dialog>
         )}
+        </div>
       </div>
 
       {assets.length === 0 ? (
