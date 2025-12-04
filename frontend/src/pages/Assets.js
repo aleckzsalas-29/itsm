@@ -616,8 +616,20 @@ const Assets = () => {
           <p className="text-slate-600">Comienza agregando tu primer activo</p>
         </div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {assets.map((asset) => (
+        <div className="space-y-8">
+          {Object.keys(assetsByCompany).map((companyId) => (
+            <div key={companyId} className="space-y-4">
+              <div className="flex items-center space-x-2 bg-slate-50 px-4 py-3 rounded-lg border-l-4 border-blue-600">
+                <Building2 className="w-5 h-5 text-blue-600" />
+                <h2 className="text-xl font-semibold text-slate-800" style={{ fontFamily: 'Space Grotesk, sans-serif' }}>
+                  {getCompanyName(companyId)}
+                </h2>
+                <span className="text-sm text-slate-600 ml-2">
+                  ({assetsByCompany[companyId].length} {assetsByCompany[companyId].length === 1 ? 'activo' : 'activos'})
+                </span>
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {assetsByCompany[companyId].map((asset) => (
             <div
               key={asset.id}
               data-testid={`asset-card-${asset.id}`}
