@@ -700,9 +700,6 @@ const Assets = () => {
                       </div>
                     </div>
                   </div>
-                ))}
-              </div>
-            </div>
           ))}
         </div>
       )}
