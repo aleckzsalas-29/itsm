@@ -20,12 +20,38 @@ const Assets = () => {
   const [editingAsset, setEditingAsset] = useState(null);
   const [formData, setFormData] = useState({
     company_id: '',
-    name: '',
+    // I. Información Básica
+    asset_type: '',
+    manufacturer: '',
     model: '',
     serial_number: '',
+    host_name: '',
+    // Credenciales Windows
+    windows_user: '',
+    windows_password: '',
+    // Correos
+    email_accounts: '',
+    // Nube y Respaldo
+    cloud_user: '',
+    backup_folder: '',
+    // II. Operación y Ubicación
     location: '',
     status: 'active',
+    ip_address: '',
+    operating_system: '',
+    os_version: '',
+    // III. Especificaciones Técnicas
+    cpu_processor: '',
+    ram_gb: '',
+    storage_type_capacity: '',
+    graphics_card: '',
+    network_ports: '',
+    // IV. Gestión Financiera
     purchase_date: '',
+    purchase_value: '',
+    warranty_expiration: '',
+    support_provider: '',
+    estimated_life_months: '',
     notes: ''
   });
 
