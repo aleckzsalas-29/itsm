@@ -618,7 +618,6 @@ const Assets = () => {
         <div className="space-y-8">
           {Object.keys(assetsByCompany).map((companyId) => (
             <div key={companyId} className="space-y-4">
-              {/* Company Header */}
               <div className="flex items-center space-x-3 pb-3 border-b border-slate-200">
                 <Building2 className="w-6 h-6 text-blue-600" />
                 <h2 className="text-xl font-semibold text-slate-800" style={{ fontFamily: 'Space Grotesk, sans-serif' }}>
@@ -629,7 +628,6 @@ const Assets = () => {
                 </span>
               </div>
               
-              {/* Assets Grid */}
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {assetsByCompany[companyId].map((asset) => (
                   <div
