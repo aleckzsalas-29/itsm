@@ -159,12 +159,31 @@ const Assets = () => {
   const resetForm = () => {
     setFormData({
       company_id: '',
-      name: '',
+      asset_type: '',
+      manufacturer: '',
       model: '',
       serial_number: '',
+      host_name: '',
+      windows_user: '',
+      windows_password: '',
+      email_accounts: '',
+      cloud_user: '',
+      backup_folder: '',
       location: '',
       status: 'active',
+      ip_address: '',
+      operating_system: '',
+      os_version: '',
+      cpu_processor: '',
+      ram_gb: '',
+      storage_type_capacity: '',
+      graphics_card: '',
+      network_ports: '',
       purchase_date: '',
+      purchase_value: '',
+      warranty_expiration: '',
+      support_provider: '',
+      estimated_life_months: '',
       notes: ''
     });
     setEditingAsset(null);
