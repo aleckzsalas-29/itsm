@@ -1013,6 +1013,133 @@ async def generate_tickets_pdf(
     )
 
 
+@api_router.get("/reports/assets/pdf")
+async def generate_assets_pdf(
+    company_id: Optional[str] = None,
+    status: Optional[str] = None,
+    asset_type: Optional[str] = None,
+    current_user: User = Depends(get_current_user)
+):
+    query = {}
+    if current_user.role == 'client':
+        query['company_id'] = current_user.company_id
+    elif company_id:
+        query['company_id'] = company_id
+    
+    if status:
+        query['status'] = status
+    if asset_type:
+        query['asset_type'] = asset_type
+    
+    assets = await db.assets.find(query, {"_id": 0}).to_list(1000)
+    
+    # Get companies info
+    companies = {}
+    company_ids = list(set([asset['company_id'] for asset in assets]))
+    for cid in company_ids:
+        company = await db.companies.find_one({"id": cid}, {"_id": 0})
+        if company:
+            companies[cid] = company['name']
+    
+    # Get system config for logo
+    config = await db.system_config.find_one({"id": "system_config"}, {"_id": 0})
+    
+    # Create PDF
+    buffer = BytesIO()
+    doc = SimpleDocTemplate(buffer, pagesize=A4)
+    elements = []
+    
+    styles = getSampleStyleSheet()
+    title_style = ParagraphStyle(
+        'CustomTitle',
+        parent=styles['Heading1'],
+        fontSize=24,
+        textColor=colors.HexColor('#1a56db'),
+        spaceAfter=30,
+        alignment=1
+    )
+    
+    # Add logo if exists
+    if config and config.get('logo_base64'):
+        try:
+            img_data = base64.b64decode(config['logo_base64'].split(',')[1])
+            img = Image.open(BytesIO(img_data))
+            img_buffer = BytesIO()
+            img.save(img_buffer, format='PNG')
+            img_buffer.seek(0)
+            logo = RLImage(img_buffer, width=2*inch, height=1*inch)
+            elements.append(logo)
+            elements.append(Spacer(1, 0.3*inch))
+        except:
+            pass
+    
+    # Title
+    company_name = config.get('company_name', 'ITSM System') if config else 'ITSM System'
+    title = Paragraph(f"{company_name}<br/>Reporte de Activos", title_style)
+    elements.append(title)
+    elements.append(Spacer(1, 0.3*inch))
+    
+    # Group assets by company
+    assets_by_company = {}
+    for asset in assets:
+        cid = asset['company_id']
+        if cid not in assets_by_company:
+            assets_by_company[cid] = []
+        assets_by_company[cid].append(asset)
+    
+    # Generate table for each company
+    for cid, company_assets in assets_by_company.items():
+        company_title = Paragraph(f"<b>Empresa: {companies.get(cid, 'Desconocida')}</b>", styles['Heading2'])
+        elements.append(company_title)
+        elements.append(Spacer(1, 0.2*inch))
+        
+        # Table data
+        data = [['Tipo', 'Modelo', 'S/N', 'Host', 'Ubicación', 'Estado']]
+        for asset in company_assets:
+            data.append([
+                (asset.get('asset_type') or '')[:15],
+                (asset.get('model') or '')[:15],
+                (asset.get('serial_number') or '')[:15],
+                (asset.get('host_name') or '')[:15],
+                (asset.get('location') or '')[:15],
+                (asset.get('status') or '')[:10]
+            ])
+        
+        table = Table(data, colWidths=[1*inch, 1.2*inch, 1.2*inch, 1.2*inch, 1.5*inch, 0.8*inch])
+        table.setStyle(TableStyle([
+            ('BACKGROUND', (0, 0), (-1, 0), colors.HexColor('#1a56db')),
+            ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),
+            ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
+            ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
+            ('FONTSIZE', (0, 0), (-1, 0), 10),
+            ('BOTTOMPADDING', (0, 0), (-1, 0), 12),
+            ('BACKGROUND', (0, 1), (-1, -1), colors.beige),
+            ('GRID', (0, 0), (-1, -1), 1, colors.black),
+            ('FONTSIZE', (0, 1), (-1, -1), 8)
+        ]))
+        
+        elements.append(table)
+        elements.append(Spacer(1, 0.3*inch))
+        
+        # Summary for this company
+        summary = Paragraph(f"<b>Total de activos:</b> {len(company_assets)}", styles['Normal'])
+        elements.append(summary)
+        elements.append(Spacer(1, 0.5*inch))
+    
+    # Overall summary
+    total_summary = Paragraph(f"<b>Total general de activos:</b> {len(assets)}", styles['Heading3'])
+    elements.append(total_summary)
+    
+    doc.build(elements)
+    buffer.seek(0)
+    
+    return StreamingResponse(
+        buffer,
+        media_type="application/pdf",
+        headers={"Content-Disposition": "attachment; filename=assets_report.pdf"}
+    )
+
+
 # ==================== SYSTEM CONFIG ROUTES ====================
 
 @api_router.get("/system/config", response_model=SystemConfig)
